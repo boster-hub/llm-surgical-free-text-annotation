@@ -1,8 +1,6 @@
 # Final Prompts Used for LLM-Based Symptom Annotation
 
 This file contains the final German zero-shot prompts used for automated annotation of four clinical symptoms in emergency department reports.  
-For each report, the respective prompt was combined with the extracted clinical text and submitted to the locally deployed LLM.  
-The model was instructed to return only one binary answer: `#ja#` or `#nein#`.
 
 ## Nausea
 
