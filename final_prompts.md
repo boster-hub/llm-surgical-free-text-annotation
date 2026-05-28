@@ -5,7 +5,7 @@ This file contains the final German zero-shot prompts used for automated annotat
 ## Nausea
 
 ```text
-Leidet der Patient an Übelkeit? Dann antworte mit #ja#. Wenn keine Übelkeit vorliegt oder keine Information dazu vorhanden ist, antworte mit #nein#. Erbrechen deutet auf Übelkeit hin. Gib keine Begründung aus.
+Leidet der Patient an Übelkeit? Gehe exact vor bei der Beantwortung. Antworte mit #ja#, wenn Übelkeit vorliegt. Wenn keine Übelkeit vorliegt oder keine Information dazu vorhanden ist, antworte mit #nein#. Erbrechen deutet auf Übelkeit hin. Gib keine Begründung aus.
 ```
 
 ## Vomiting
