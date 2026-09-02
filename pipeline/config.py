@@ -84,14 +84,11 @@ CANDIDATE_MODELS = [
 # DATA SPLIT
 # =========================================================
 
-# Number of reports included in each symptom-specific development set.
-
 DEVELOPMENT_SIZE = 250
-
-# Fixed seed used for reproducible symptom-specific stratified splitting.
 
 RANDOM_SEED = 42
 
+TEMPERATURE_ITERATIONS = 10
 
 # =========================================================
 # ACTIVE LLM RUN
