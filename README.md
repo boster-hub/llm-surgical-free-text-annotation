@@ -1,4 +1,4 @@
-# From Clinical Free Text to Structured Data
+# From clinical free text to structured data
 
 This repository contains the reproducible Python pipeline developed for binary symptom annotation in German emergency department reports using locally deployed open-weight large language models (LLMs).
 
