@@ -1,5 +1,7 @@
 # From clinical free text to structured data
 
+[![DOI](https://zenodo.org/badge/1183318664.svg)](https://doi.org/10.5281/zenodo.20797290)
+
 This repository contains the reproducible Python pipeline developed for binary symptom annotation in German emergency department reports using locally deployed open-weight large language models (LLMs).
 
 The workflow includes PDF text extraction, symptom-specific stratified data splitting, local LLM inference with Ollama, deterministic response parsing, candidate-model screening, comparison with a negation-aware rule-based baseline, patient-level bootstrap analysis, and preparation of discrepancies for manual consensus review.
