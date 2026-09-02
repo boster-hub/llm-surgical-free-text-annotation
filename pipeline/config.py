@@ -28,11 +28,6 @@ BOOTSTRAP_FILE = BASE_DIR / "bootstrap_results.csv"
 SCREENING_SUMMARY_FILE = BASE_DIR / "screening_summary.csv"
 ERROR_ANALYSIS_FILE = BASE_DIR / "error_analysis.csv"
 
-ANALYSIS_NAME = os.environ.get(
-    "ANALYSIS_NAME",
-    "test",
-)
-
 
 # =========================================================
 # PDF TEXT EXTRACTION
@@ -43,17 +38,16 @@ ANALYSIS_NAME = os.environ.get(
 PDF_PATTERN = "*_NP.pdf"
 
 # Institution-specific markers delimiting the relevant report section.
-# Set these variables locally to the exact literal start marker and regular
-# expression used for the end marker. 
+# Set both values locally before running the PDF extraction script.
 
 START_MARKER = os.environ.get(
     "START_MARKER",
-    "<SET_START_MARKER>",
+    "SET_START_MARKER",
 )
 
 END_MARKER_PATTERN = os.environ.get(
     "END_MARKER_PATTERN",
-    r"<SET_END_MARKER_REGEX>",
+    r"SET_END_MARKER_REGEX",
 )
 
 
@@ -80,23 +74,31 @@ CANDIDATE_MODELS = [
     "nemotron:70b",
 ]
 
+
 # =========================================================
-# DATA SPLIT
+# ANALYSIS SETTINGS
 # =========================================================
 
 DEVELOPMENT_SIZE = 250
 
 RANDOM_SEED = 42
 
+N_BOOTSTRAP = 2000
+
 TEMPERATURE_ITERATIONS = 10
+
 
 # =========================================================
 # ACTIVE LLM RUN
 # =========================================================
 
-# Runtime settings can be overridden using environment variables.
-# The defaults reproduce the model-run configuration used in the study unless
-# a different value is explicitly supplied for a specific pipeline run.
+# These runtime settings can be overridden using environment variables.
+# The orchestration scripts set the required values for each experiment.
+
+ANALYSIS_NAME = os.environ.get(
+    "ANALYSIS_NAME",
+    "test",
+)
 
 ACTIVE_SYMPTOM = os.environ.get(
     "ACTIVE_SYMPTOM",
@@ -135,7 +137,8 @@ N_ITERATIONS = int(
 # System message applied unchanged to all models and symptoms.
 
 SYSTEM_MESSAGE = (
-    "Du hilfst als KI-Assistent aus medizinischen Texten Informationen zu extrahieren."
+    "Du hilfst als KI-Assistent aus medizinischen Texten "
+    "Informationen zu extrahieren."
 )
 
 
@@ -143,16 +146,15 @@ SYSTEM_MESSAGE = (
 # OLLAMA
 # =========================================================
 
-# URL of the Ollama server used for local or network-based inference.
-# Set OLLAMA_HOST locally before running the inference pipeline.
+# Set OLLAMA_HOST to the URL of the local or network-accessible Ollama server.
 #
-# Example for an Ollama server running on the same computer:
+# Example for a server running on the same computer:
 # export OLLAMA_HOST="http://localhost:11434"
 #
 # Example for a server on the local network:
-# export OLLAMA_HOST="http://<server-address>:11434"
+# export OLLAMA_HOST="http://server-address:11434"
 
 OLLAMA_HOST = os.environ.get(
     "OLLAMA_HOST",
-    "http://<SET_OLLAMA_HOST>:11434",
+    "http://SET_OLLAMA_HOST:11434",
 )
