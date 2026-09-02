@@ -86,7 +86,7 @@ nemotron-mini:4b
 nemotron:70b
 ```
 
-The complete model digests, quantization levels, parameter counts, and context lengths used in the study are reported in the supplementary model manifest accompanying the manuscript.
+The exact model digests, quantization levels, parameter counts, context lengths, and model sizes used in the study are provided in [`model_manifest.csv`](model_manifest.csv) and in the supplementary model manifest accompanying the manuscript.
 
 ## Local configuration
 
