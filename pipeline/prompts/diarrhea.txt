@@ -1,0 +1,1 @@
+Leidet der Patient an Durchfall? Gehe exakt vor bei der Beantwortung. Antworte mit #ja#, wenn Durchfall vorliegt. Wenn kein Durchfall vorliegt oder keine Information dazu vorhanden ist, antworte mit #nein#. Gib keine Begründung aus.
