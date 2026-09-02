@@ -1,0 +1,1 @@
+Leidet der Patient an Übelkeit? Dann antworte mit #ja#. Wenn keine Übelkeit vorliegt oder keine Information dazu vorhanden ist, antworte mit #nein#. Erbrechen deutet auf Übelkeit hin. Gib keine Begründung aus.
