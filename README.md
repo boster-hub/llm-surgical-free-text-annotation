@@ -1,17 +1,358 @@
 # From Clinical Free Text to Structured Data
 
-This repository contains the reproducible Python pipeline developed for symptom annotation in German emergency department reports using locally deployed open-weight large language models.
+This repository contains the reproducible Python pipeline developed for binary symptom annotation in German emergency department reports using locally deployed open-weight large language models (LLMs).
 
-The workflow includes:
+The workflow includes PDF text extraction, symptom-specific stratified data splitting, local LLM inference with Ollama, deterministic response parsing, candidate-model screening, comparison with a negation-aware rule-based baseline, patient-level bootstrap analysis, and preparation of discrepancies for manual consensus review.
 
-- extraction of text from computer-generated PDF reports;
-- symptom-specific stratified data splitting;
-- local LLM inference using Ollama;
-- deterministic output parsing;
-- model screening and selection;
-- evaluation against a negation-aware rule-based baseline;
-- patient-level bootstrap analysis; and
-- reproducible generation of summary results.
+## Repository structure
+
+```text
+.
+├── LICENSE
+├── README.md
+├── requirements.txt
+├── legacy/
+│   ├── README.md
+│   └── ...
+└── pipeline/
+    ├── config.py
+    ├── 1_pdftotext.py
+    ├── 2_split.py
+    ├── 3_llmextract.py
+    ├── 4_post.py
+    ├── 5_eval.py
+    ├── 6_run_temperature.py
+    ├── 7_temperature_summary.py
+    ├── 8_run_screening.py
+    ├── 9_selectllm.py
+    ├── 10_run_validation.py
+    ├── 11_rule_based_baseline.py
+    ├── 12_bootstrap_validation.py
+    ├── 13_prepare_error_analysis.py
+    └── prompts/
+        ├── nausea.txt
+        ├── vomiting.txt
+        ├── diarrhea.txt
+        └── dysuria.txt
+```
+
+## Requirements
+
+### Python
+
+The pipeline requires Python 3.9 or later. The pinned Python dependencies are listed in `requirements.txt`:
+
+- NumPy
+- pandas
+- scikit-learn
+- Ollama Python client
+
+Create and activate a virtual environment, then install the dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+On Windows, activate the environment with:
+
+```text
+.venv\Scripts\activate
+```
+
+### Poppler
+
+PDF text extraction requires Poppler `pdftotext` to be installed and available on the system path. The reported analysis used Poppler `pdftotext` version 26.08.0.
+
+The source reports were computer-generated PDFs; optical character recognition was not used.
+
+### Ollama
+
+LLM inference requires access to a local or network-accessible Ollama server. All candidate models must be available on that server before the corresponding experiment is started.
+
+The evaluated model names were:
+
+```text
+gemma2:9b
+gemma2:27b
+llama3.1:8b
+llama3.1:70b
+llama3.3:70b
+mistral-small:22b
+mistral-large:123b
+nemotron-mini:4b
+nemotron:70b
+```
+
+The complete model digests, quantization levels, parameter counts, and context lengths used in the study are reported in the supplementary model manifest accompanying the manuscript.
+
+## Local configuration
+
+The following environment variables must be adapted to the local infrastructure.
+
+### PDF extraction markers
+
+The extraction script retains the text between an institution-specific literal start marker and a regular-expression end marker:
+
+```bash
+export START_MARKER="your-start-marker"
+export END_MARKER_PATTERN="your-end-marker-regular-expression"
+```
+
+### Ollama server
+
+For an Ollama server running on the same computer:
+
+```bash
+export OLLAMA_HOST="http://localhost:11434"
+```
+
+For an Ollama server on the local network:
+
+```bash
+export OLLAMA_HOST="http://server-address:11434"
+```
+
+The active model, symptom, split, temperature, iteration count, and analysis name can also be supplied through environment variables. The orchestration scripts set these values automatically for the reported experiments.
+
+## Input data
+
+Clinical source data are not included in this repository.
+
+### PDF reports
+
+Place the reports belonging to the analysis cohort in:
+
+```text
+pipeline/PDF/
+```
+
+The default filename pattern is:
+
+```text
+*_NP.pdf
+```
+
+The identifier is derived from the filename by removing the `_NP` suffix.
+
+### Reference annotations
+
+Provide:
+
+```text
+pipeline/annotation.csv
+```
+
+The file must contain the following columns:
+
+```text
+id,nausea,vomiting,diarrhea,dysuria
+```
+
+Reference labels must be encoded as:
+
+```text
+ja
+nein
+```
+
+### Analysis texts
+
+The main screening and validation workflow starts from a predefined analysis cohort. In the reported study, this cohort comprised 1,000 reports after exclusion of a previously reserved 100-report exploration-and-configuration set.
+
+Running the PDF extraction script creates:
+
+```text
+pipeline/texts.csv
+```
+
+For subsequent model screening and validation, the predefined analysis cohort must be supplied as:
+
+```text
+pipeline/texts_analysis.csv
+```
+
+with the columns:
+
+```text
+id,text
+```
+
+If the PDF directory contains only the reports belonging to the analysis cohort, the generated `texts.csv` can be used as `texts_analysis.csv`.
+
+The 100-report exploration-and-configuration set was defined before the main analysis. Reproduction of the optional temperature experiment additionally requires:
+
+```text
+pipeline/texts_prompt.csv
+```
+
+with the same `id,text` structure. This file is not generated by the main screening and validation workflow.
+
+## Workflow
+
+Run all commands from the repository root.
+
+### 1. Extract text from PDF reports
+
+```bash
+python pipeline/1_pdftotext.py
+```
+
+The script calls Poppler `pdftotext` with layout preservation and UTF-8 encoding, replaces PDF page breaks with spaces, extracts the section between the configured markers, and writes the reports in deterministic ID order.
+
+### 2. Create symptom-specific development and validation sets
+
+```bash
+python pipeline/2_split.py
+```
+
+For each symptom, the reports in `texts_analysis.csv` are randomly divided using stratification by the corresponding binary reference label. The development-set size and random seed are defined in `config.py`.
+
+In the reported study, each symptom-specific split comprised:
+
+```text
+250 development reports
+750 validation reports
+```
+
+Patient membership may differ between symptom-specific splits. Within each symptom, no patient occurs in both subsets.
+
+### 3. Optional temperature experiment
+
+The optional temperature experiment requires `texts_prompt.csv`.
+
+```bash
+python pipeline/6_run_temperature.py
+python pipeline/7_temperature_summary.py
+```
+
+The reported experiment evaluated all nine candidate models for nausea at temperatures from 0.0 to 1.0 in increments of 0.1, with ten repetitions per model-temperature combination.
+
+### 4. Screen candidate models
+
+```bash
+python pipeline/8_run_screening.py
+```
+
+This runner applies all candidate models to all four symptom-specific development sets at temperature 0.0. Each model is evaluated once per symptom.
+
+Raw responses, deterministically parsed predictions, and evaluation summaries are generated by scripts `3_llmextract.py`, `4_post.py`, and `5_eval.py`, which are called automatically by the runner.
+
+### 5. Select one model per symptom
+
+```bash
+python pipeline/9_selectllm.py
+```
+
+Models are ranked by decreasing observed development-set F1-score. Steady-state inference time is used only as a tiebreaker. Bootstrap confidence intervals do not affect model selection.
+
+The script writes:
+
+```text
+pipeline/screening_summary.csv
+pipeline/selected_llms.csv
+```
+
+### 6. Run independent validation
+
+```bash
+python pipeline/10_run_validation.py
+```
+
+The selected symptom-specific models are applied once to their corresponding validation sets using the temperatures stored in `selected_llms.csv`.
+
+### 7. Run the rule-based baseline
+
+```bash
+python pipeline/11_rule_based_baseline.py
+```
+
+The predefined baseline uses symptom-specific terminology patterns and a local five-word negation context. For diarrhea, an additional rule evaluates stool consistency, stool reference, frequency, and temporal context within the same sentence.
+
+### 8. Perform paired patient-level bootstrap analysis
+
+```bash
+python pipeline/12_bootstrap_validation.py
+```
+
+The selected LLM and rule-based baseline are evaluated using identical sampled patient indices within each symptom. The analysis uses 2,000 bootstrap samples and percentile-based 95% confidence intervals.
+
+Paired F1-score differences are calculated as:
+
+```text
+selected LLM F1 − rule-based baseline F1
+```
+
+Positive values favor the selected LLM.
+
+### 9. Prepare discrepancies for manual review
+
+```bash
+python pipeline/13_prepare_error_analysis.py
+```
+
+The script identifies disagreements between the selected LLM predictions and the original reference annotations and creates empty fields for post-hoc consensus categorization:
+
+```text
+category
+consensus_note
+```
+
+No discrepancy categories are assigned automatically.
+
+## Response parsing
+
+Raw model responses are retained unchanged. Parsing is deterministic:
+
+1. responses are converted to lowercase;
+2. carriage returns, line breaks, hash symbols, and spaces are removed;
+3. an exact normalized output of `ja` is classified as positive;
+4. an exact normalized output of `nein` is classified as negative;
+5. every other output is classified as negative and marked as `invalid_defaulted_to_no`.
+
+Invalid responses remain included in all performance calculations.
+
+## Inference timing
+
+Documents are processed sequentially without batching or parallel inference. Streaming and thinking mode are disabled. Models are kept in memory for 30 minutes.
+
+Before each inference run, a non-clinical warm-up request is sent:
+
+```text
+Antworte nur mit OK.
+```
+
+Steady-state inference time is defined as:
+
+```text
+prompt evaluation time + response generation time
+```
+
+Warm-up duration and model-load duration are recorded separately and excluded from the primary steady-state inference-time measure.
+
+## Outputs
+
+Depending on the executed workflow, outputs are written to:
+
+```text
+pipeline/splits/
+pipeline/raw_outputs/
+pipeline/post_outputs/
+pipeline/evaluations/
+pipeline/baseline_outputs/
+```
+
+Additional summary files are written directly to `pipeline/`.
+
+These files may contain report identifiers, model responses, reference labels, or clinical text and must be handled according to the applicable data-protection requirements.
+
+## Data availability and privacy
+
+No original clinical reports, patient identifiers, extracted clinical texts, reference annotations, raw model outputs, or manual discrepancy-review files are included in this repository.
+
+Users are responsible for ensuring that local processing, storage, and model deployment comply with applicable institutional and legal data-protection requirements.
 
 ## Legacy code
 
@@ -23,4 +364,4 @@ The legacy workflow should not be used to reproduce the results reported in the 
 
 ## License
 
-See [`LICENSE`](LICENSE).
+This repository is distributed under the MIT License. See [`LICENSE`](LICENSE).
