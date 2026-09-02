@@ -58,10 +58,8 @@ END_MARKER_PATTERN = os.environ.get(
 
 
 # =========================================================
-# SYMPTOMS
+# SYMPTOMS AND CANDIDATE MODELS
 # =========================================================
-
-# Symptoms are processed in the order listed below.
 
 SYMPTOMS = [
     "nausea",
@@ -70,6 +68,17 @@ SYMPTOMS = [
     "dysuria",
 ]
 
+CANDIDATE_MODELS = [
+    "gemma2:9b",
+    "gemma2:27b",
+    "llama3.1:8b",
+    "llama3.1:70b",
+    "llama3.3:70b",
+    "mistral-small:22b",
+    "mistral-large:123b",
+    "nemotron-mini:4b",
+    "nemotron:70b",
+]
 
 # =========================================================
 # DATA SPLIT
