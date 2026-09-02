@@ -5,6 +5,7 @@ import sys
 from config import (
     BASE_DIR,
     CANDIDATE_MODELS,
+    TEMPERATURE_ITERATIONS,
 )
 
 
@@ -30,7 +31,7 @@ for model in CANDIDATE_MODELS:
                 "ACTIVE_SPLIT": "prompt",
                 "MODEL": model,
                 "TEMPERATURE": str(temperature),
-                "N_ITERATIONS": "10",
+                "N_ITERATIONS": str(TEMPERATURE_ITERATIONS),
             }
         )
 
