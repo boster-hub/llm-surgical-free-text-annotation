@@ -1,0 +1,10 @@
+model,developer,parameters,quantization,maximum_context_length,model_size_gb,ollama_model_digest
+gemma2:9b,Google,9.2B,Q4_0,8192,5.4,ff02c3702f322b9e075e9568332d96c0a7028002f1a5a056e0a6784320a4db0b
+gemma2:27b,Google,27.2B,Q4_0,8192,15.6,53261bc9c192c1cb5fcc898dd3aa15da093f5ab6f08e17e48cf838bb1c58abfe
+llama3.1:8b,Meta,8.0B,Q4_K_M,131072,4.9,46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e
+llama3.1:70b,Meta,70.6B,Q4_K_M,131072,42.5,711a9e8463afd8edd580debd3b5c521521ebe55ba95bb80d576f4149969e07c6
+llama3.3:70b,Meta,70.6B,Q4_K_M,131072,42.5,a6eb4748fd2990ad2952b2335a95a7f952d1a06119a0aa6a2df6cd052a93a3fa
+mistral-small:22b,Mistral AI,22.2B,Q4_0,131072,12.6,d095cd553b04e6bde571072bf3d8bc0a88c340e011acf12a5d4fa06ee36f88bc
+mistral-large:123b,Mistral AI,122.6B,Q4_K_M,131072,73.2,bbcf36dc47addf03bc2f317b1a5e451a0b5a64417eb9e2de1963ebac4909c238
+nemotron-mini:4b,NVIDIA,4.2B,Q4_K_M,4096,2.7,ed76ab18784f5a01c9ec5b3c250e964d4f9c7a983e59ba041bb995f0fe2e8fb3
+nemotron:70b,NVIDIA,70.6B,Q4_K_M,131072,42.5,2262f047a28a348ebbdb44fd275f68907aa8916cac6775456348a60f93add589
