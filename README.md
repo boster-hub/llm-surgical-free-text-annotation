@@ -119,6 +119,14 @@ export OLLAMA_HOST="http://server-address:11434"
 
 The active model, symptom, split, temperature, iteration count, and analysis name can also be supplied through environment variables. The orchestration scripts set these values automatically for the reported experiments.
 
+## Adapting the workflow
+
+For other document types, users must adapt the filename pattern, section markers, or text-extraction procedure, or directly provide a compatible `texts_analysis.csv`.
+
+For other clinical concepts, users must update `SYMPTOMS` in `config.py`, provide corresponding reference-annotation columns and prompt files, and adapt the rule-based baseline if used.
+
+The Ollama host and candidate-model list must be configured for the local infrastructure. Each adapted workflow requires new task-specific development and independent validation.
+
 ## Input data
 
 Clinical source data are not included in this repository.
